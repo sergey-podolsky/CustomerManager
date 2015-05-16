@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="2.0" xmlns:edmx="http://schemas.microsoft.com/ado/2008/10/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="CustomersModel.Store" Alias="Self" Provider="System.Data.SqlServerCe.3.5" ProviderManifestToken="3.5" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+        <EntityContainer Name="CustomersModelStoreContainer">
+          <EntitySet Name="Business" EntityType="CustomersModel.Store.Business" store:Type="Tables" />
+          <EntitySet Name="Customer" EntityType="CustomersModel.Store.Customer" store:Type="Tables" />
+          <EntitySet Name="State" EntityType="CustomersModel.Store.State" store:Type="Tables" />
+          <AssociationSet Name="doing" Association="CustomersModel.Store.doing">
+            <End Role="Customer" EntitySet="Customer" />
+            <End Role="Business" EntitySet="Business" />
+          </AssociationSet>
+          <AssociationSet Name="has" Association="CustomersModel.Store.has">
+            <End Role="State" EntitySet="State" />
+            <End Role="Customer" EntitySet="Customer" />
+          </AssociationSet>
+          <AssociationSet Name="in" Association="CustomersModel.Store.in">
+            <End Role="State" EntitySet="State" />
+            <End Role="Business" EntitySet="Business" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Business">
+          <Key>
+            <PropertyRef Name="State" />
+            <PropertyRef Name="CustomerID" />
+          </Key>
+          <Property Name="State" Type="nvarchar" Nullable="false" MaxLength="100" />
+          <Property Name="CustomerID" Type="uniqueidentifier" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="100" />
+          <Property Name="Email" Type="nvarchar" Nullable="false" MaxLength="100" />
+          <Property Name="HQState" Type="nvarchar" Nullable="false" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="State">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="100" />
+        </EntityType>
+        <Association Name="doing">
+          <End Role="Customer" Type="CustomersModel.Store.Customer" Multiplicity="1" />
+          <End Role="Business" Type="CustomersModel.Store.Business" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Business">
+              <PropertyRef Name="CustomerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="has">
+          <End Role="State" Type="CustomersModel.Store.State" Multiplicity="1" />
+          <End Role="Customer" Type="CustomersModel.Store.Customer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="State">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="Customer">
+              <PropertyRef Name="HQState" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="in">
+          <End Role="State" Type="CustomersModel.Store.State" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Business" Type="CustomersModel.Store.Business" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="State">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="Business">
+              <PropertyRef Name="State" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="CustomersModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+        <EntityContainer Name="CustomersEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Customers" EntityType="CustomersModel.Customer" />
+          <EntitySet Name="States" EntityType="CustomersModel.State" />
+          <AssociationSet Name="has" Association="CustomersModel.has">
+            <End Role="State" EntitySet="States" />
+            <End Role="Customer" EntitySet="Customers" />
+          </AssociationSet>
+          <AssociationSet Name="Business" Association="CustomersModel.Business">
+            <End Role="Customer" EntitySet="Customers" />
+            <End Role="State" EntitySet="States" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Guid" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+          <Property Name="HQState" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+          <NavigationProperty Name="State" Relationship="CustomersModel.has" FromRole="Customer" ToRole="State" />
+          <NavigationProperty Name="States" Relationship="CustomersModel.Business" FromRole="Customer" ToRole="State" />
+        </EntityType>
+        <EntityType Name="State">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+          <NavigationProperty Name="CustomersWithHQ" Relationship="CustomersModel.has" FromRole="State" ToRole="Customer" />
+          <NavigationProperty Name="CustomersWithBusiness" Relationship="CustomersModel.Business" FromRole="State" ToRole="Customer" />
+        </EntityType>
+        <Association Name="has">
+          <End Role="State" Type="CustomersModel.State" Multiplicity="1" />
+          <End Role="Customer" Type="CustomersModel.Customer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="State">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="Customer">
+              <PropertyRef Name="HQState" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Business">
+          <End Role="Customer" Type="CustomersModel.Customer" Multiplicity="*" />
+          <End Role="State" Type="CustomersModel.State" Multiplicity="*" />
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="CustomersModelStoreContainer" CdmEntityContainer="CustomersEntities">
+          <EntitySetMapping Name="Customers">
+            <EntityTypeMapping TypeName="CustomersModel.Customer">
+              <MappingFragment StoreEntitySet="Customer">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="HQState" ColumnName="HQState" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="States">
+            <EntityTypeMapping TypeName="CustomersModel.State">
+              <MappingFragment StoreEntitySet="State">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="Business" TypeName="CustomersModel.Business" StoreEntitySet="Business">
+            <EndProperty Name="Customer">
+              <ScalarProperty Name="ID" ColumnName="CustomerID" />
+            </EndProperty>
+            <EndProperty Name="State">
+              <ScalarProperty Name="Name" ColumnName="State" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2008/10/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="False" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams>
+      <Diagram Name="Customers">
+        <EntityTypeShape EntityType="CustomersModel.Customer" Width="1.5" PointX="0.75" PointY="0.875" Height="2.1725878906250005" IsExpanded="true" />
+        <EntityTypeShape EntityType="CustomersModel.State" Width="2" PointX="3" PointY="1.25" Height="1.5956835937499996" IsExpanded="true" />
+        <AssociationConnector Association="CustomersModel.has" ManuallyRouted="false">
+          <ConnectorPoint PointX="3" PointY="2.4171416766826921" />
+          <ConnectorPoint PointX="2.625" PointY="2.4171416766826921" />
+          <ConnectorPoint PointX="2.625" PointY="2.1893303034855767" />
+          <ConnectorPoint PointX="2.25" PointY="2.1893303034855767" />
+        </AssociationConnector>
+        <AssociationConnector Association="CustomersModel.Business" ManuallyRouted="false">
+          <ConnectorPoint PointX="2.25" PointY="2.7874365234375" />
+          <ConnectorPoint PointX="2.6875" PointY="2.7874365234375" />
+          <ConnectorPoint PointX="2.6875" PointY="2.631913671875" />
+          <ConnectorPoint PointX="3" PointY="2.631913671875" />
+        </AssociationConnector>
+      </Diagram>
+    </Diagrams>
+  </Designer>
+</edmx:Edmx>
